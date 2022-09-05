@@ -13,6 +13,7 @@ pub(crate) struct Word {
 mod inner {
     use std::{
         ffi::{OsStr, OsString},
+        ops::Range,
         rc::Rc,
     };
 
@@ -193,6 +194,76 @@ mod inner {
         pub fn set_comp(mut self, rev: usize) -> Self {
             self.comp = Some(crate::complete_gen::Complete::new(rev));
             self
+        }
+
+        /// Generates sequential "inits" of Args
+        pub(crate) fn sequences(&'a self) -> ArgSeqIter<'a> {
+            let start = self.items_iter().next().map_or(0, |x| x.0);
+            ArgSeqIter {
+                args: self,
+                start,
+                end: start + 1,
+            }
+        }
+
+        /// return sequentially removed range of size diff between self and source, if possible
+        pub(crate) fn sequentially_consumed_range(
+            &self,
+            source: &Self,
+            diff: usize,
+        ) -> Option<Range<usize>> {
+            let mut res = 0;
+            let mut start = usize::MAX;
+            for (ix, (this, src)) in self.removed.iter().zip(source.removed.iter()).enumerate() {
+                // both removed - do nothing
+                // this removed, not removed - bump res
+                // this not removed and res > 0: stop
+                if !this && res > 0 || res >= diff {
+                    break;
+                } else if *this && !src {
+                    res += 1;
+                    if start == usize::MAX {
+                        start = ix;
+                    }
+                }
+            }
+            if res == diff {
+                Some(start..start + diff)
+            } else {
+                None
+            }
+        }
+
+        pub(crate) fn remove_range(&mut self, range: Range<usize>) {
+            self.remaining -= range.len();
+            for i in range {
+                self.removed[i] = true;
+            }
+        }
+    }
+
+    pub(crate) struct ArgSeqIter<'a> {
+        args: &'a Args,
+        start: usize,
+        end: usize,
+    }
+
+    impl<'a> Iterator for ArgSeqIter<'a> {
+        type Item = Args;
+        fn next(&mut self) -> Option<Self::Item> {
+            let mut args = self.args.clone();
+
+            if self.end > args.removed.len()
+                || args.removed[self.start..self.end].iter().any(|x| *x)
+            {
+                None
+            } else {
+                for r in args.removed[self.end..].iter_mut() {
+                    *r = true;
+                }
+                self.end += 1;
+                Some(args)
+            }
         }
     }
 

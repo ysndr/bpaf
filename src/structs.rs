@@ -395,6 +395,7 @@ fn parse_option<P, T>(parser: &P, args: &mut Args) -> Result<Option<T>, Error>
 where
     P: Parser<T>,
 {
+    println!("Trying to parse {:?}", args);
     let mut orig_args = args.clone();
     match parser.eval(args) {
         Ok(val) => Ok(Some(val)),
@@ -422,6 +423,7 @@ where
         let mut res = Vec::new();
         let mut len = args.len();
         while let Some(val) = parse_option(&self.inner, args)? {
+            println!("okay!");
             if args.len() < len {
                 len = args.len();
                 res.push(val);
@@ -509,6 +511,69 @@ where
 
     fn meta(&self) -> Meta {
         self.meta.clone()
+    }
+}
+
+impl<P> PCon<P> {
+    pub fn sequential(self) -> PSeq<PCon<P>> {
+        PSeq { inner: self }
+    }
+}
+
+pub struct PSeq<P> {
+    inner: P,
+}
+
+impl<T, P> Parser<T> for PSeq<P>
+where
+    P: Parser<T> + Sized,
+    T: std::fmt::Debug,
+{
+    fn eval(&self, args: &mut Args) -> Result<T, Error> {
+        let mut previous = None;
+        let mut prev_comp = None;
+
+        println!("Running vs {:?}", args);
+        for mut sequence in args.sequences() {
+            let before = sequence.len();
+            match self.inner.eval(&mut sequence) {
+                Ok(res) => {
+                    let after = sequence.len();
+                    let total = before - after;
+                    if let Some(range) = sequence.sequentially_consumed_range(args, total) {
+                        std::mem::swap(&mut sequence.comp, &mut prev_comp);
+                        previous = Some(Ok((res, range)));
+                    } else {
+                        break;
+                    }
+                }
+                Err(err) => {
+                    if let Some(Ok(_)) = previous {
+                        break;
+                    } else {
+                        std::mem::swap(&mut sequence.comp, &mut prev_comp);
+                        previous = Some(Err(err))
+                    }
+                }
+            }
+        }
+        println!("{:?}", previous);
+        match previous {
+            Some(Err(err)) => {
+                // todo - completion
+                Err(err)
+            }
+            Some(Ok((res, range))) => {
+                args.remove_range(range);
+                println!("new range is {:?}", args);
+                Ok(res)
+            }
+            None => self.inner.eval(args),
+        }
+    }
+
+    fn meta(&self) -> Meta {
+        self.inner.meta()
     }
 }
 
