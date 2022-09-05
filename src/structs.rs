@@ -395,7 +395,6 @@ fn parse_option<P, T>(parser: &P, args: &mut Args) -> Result<Option<T>, Error>
 where
     P: Parser<T>,
 {
-    println!("Trying to parse {:?}", args);
     let mut orig_args = args.clone();
     match parser.eval(args) {
         Ok(val) => Ok(Some(val)),
@@ -521,7 +520,7 @@ impl<P> PCon<P> {
 }
 
 pub struct PSeq<P> {
-    inner: P,
+    pub(crate) inner: P,
 }
 
 impl<T, P> Parser<T> for PSeq<P>
@@ -557,7 +556,6 @@ where
                 }
             }
         }
-        println!("{:?}", previous);
         match previous {
             Some(Err(err)) => {
                 // todo - completion

@@ -904,6 +904,12 @@ pub struct Command<T> {
     subparser: OptionParser<T>,
 }
 
+impl<T> Command<T> {
+    pub fn sequential(self) -> crate::structs::PSeq<Command<T>> {
+        crate::structs::PSeq { inner: self }
+    }
+}
+
 impl<P> Command<P> {
     /// Add a brief description to a command
     ///

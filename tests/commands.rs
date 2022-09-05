@@ -8,8 +8,18 @@ fn chain_commands() {
         B(bool),
     }
 
-    let a = short('a').switch().to_options().command("a").map(Cmd::A);
-    let b = short('b').switch().to_options().command("b").map(Cmd::B);
+    let a = short('a')
+        .switch()
+        .to_options()
+        .command("a")
+        .sequential()
+        .map(Cmd::A);
+    let b = short('b')
+        .switch()
+        .to_options()
+        .command("b")
+        .sequential()
+        .map(Cmd::B);
     let parser = construct!([a, b]).many().to_options();
 
     let r = parser
