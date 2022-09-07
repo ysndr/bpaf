@@ -1,3 +1,5 @@
+use crate::args::split_os_argument;
+
 #[test]
 #[cfg(any(windows, unix))]
 fn wtf_shenanigans_1() {
@@ -16,7 +18,7 @@ fn wtf_shenanigans_1() {
             use std::os::windows::ffi::OsStringExt;
             i_suffix = OsString::from_wide(&[0x0066, 0x006f, 0xD800, 0x006f]);
         }
-        #[cfg(not(windows))]
+        #[cfg(unix)]
         {
             use std::os::unix::ffi::OsStringExt;
             i_suffix = OsString::from_vec(vec![0x66, 0x6f, 0xD8, 0x6f]);
@@ -70,6 +72,21 @@ fn wtf_shenanigans_2() {
         assert_eq!(i_prefix.to_str().unwrap(), o_prefix);
         assert_eq!(word_arg(i_suffix.clone(), false), o_suffix.unwrap());
     }
+}
+
+#[test]
+fn wtf_shenanigans_3() {
+    use crate::args::Args;
+    use std::ffi::OsString;
+    let word;
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStringExt;
+        word = OsString::from_vec(vec![b'-', b'b', b'a', b'n', 0xD8]);
+    }
+    let args = Args::from(&[word][..]);
+
+    assert_eq!(args.len(), 1);
 }
 
 #[test]

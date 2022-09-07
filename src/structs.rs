@@ -1,7 +1,7 @@
 //!
 use std::{marker::PhantomData, str::FromStr};
 
-use crate::{info::Error, Args, Meta, Parser};
+use crate::{args::Arg, info::Error, Args, Meta, Parser};
 
 #[cfg(feature = "autocomplete")]
 use crate::CompleteDecor;
@@ -518,17 +518,11 @@ impl<P> PCon<P> {
         PAdjacent { inner: self }
     }
 }
-// 1. find a value it would consume - this item should start
-//    a sequence of adjacent items
-// 2. extend a subparser to the right as far as possible
-//    selecting longest adjacent sequence of consumed things
-// 3. return the result
-//
-// 1. run as is to detect the first consumed item
-// 2. if succeeds - run with the adjacent prefix
-// 3. if fails without consuming anything - fail
-// - - run with expanding prefixes from the item
-//
+
+/// adjacency rules:
+/// 1. items must form an adjacent group: consuming -a and -b from -a -b -c works, but
+/// fails from -a -c -b
+/// 2. -abc no longer explode into -a -b -c but can be parsed as -a bc instead
 pub struct PAdjacent<P> {
     pub(crate) inner: P,
 }
@@ -556,6 +550,27 @@ where
         {
             std::mem::swap(args, &mut scratch);
             return res;
+        }
+        if res.is_err() && start_guess.len() == 1 {
+            if let Some((short, word)) = args.get(start_guess.start).and_then(Arg::as_posix_opt_opt)
+            {
+                let mut fake_args = Args::from(&[short, word][..]);
+                let res = self.inner.eval(&mut fake_args);
+                if res.is_ok() {
+                    let mut tail = start_guess.start;
+                    args.remove(tail);
+                    tail += 1;
+                    while let Some(Arg::Short(_, aos)) = args.get(tail) {
+                        if !aos.is_empty() {
+                            break;
+                        }
+                        args.remove(tail);
+                        tail += 1;
+                    }
+                    println!("{:?}", args);
+                    return res;
+                }
+            }
         }
 
         // then look for the end by stripping everything from the beginning
@@ -686,6 +701,10 @@ where
     fn meta(&self) -> Meta {
         self.inner.meta()
     }
+}
+
+fn refine_args_for_adjl(scratch: &mut Args, orig: &Args, guess: Range<usize>) -> bool {
+    todo!()
 }
 
 /// Parser that replaces metavar placeholders with actual info in shell completion

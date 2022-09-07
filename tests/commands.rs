@@ -26,5 +26,6 @@ fn chain_commands() {
         .run_inner(Args::from(&["a", "-a", "b", "a", "b", "-b"]))
         .unwrap();
 
-    todo!("{:?}", r)
+    use Cmd::*;
+    assert_eq!(&r, &[A(true), B(false), A(false), B(true)]);
 }

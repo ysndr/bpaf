@@ -318,6 +318,16 @@ impl std::fmt::Display for Arg {
     }
 }
 
+impl Arg {
+    pub(crate) fn as_posix_opt_opt(&self) -> Option<(OsString, OsString)> {
+        let os = match self {
+            Arg::Short(_, os) => os,
+            Arg::Long(_, _) | Arg::Word(_) => return None,
+        };
+        todo!("{:?}", os);
+    }
+}
+
 #[inline(never)]
 pub(crate) fn word(os: OsString, pos_only: bool) -> Word {
     Word {
@@ -399,19 +409,7 @@ pub(crate) enum ArgType {
 ///
 /// The idea is to split the [`OsString`] into opaque parts by looking only at the parts simple parts
 /// and let stdlib to handle the decoding of those parts.
-///
-/// performance wise this (at least on unix) works some small number percentage slower than the
-/// previous version
-///
-///
-/// on supporting -fbar
-/// - ideally bpaf wants to support any utf8 character (here `f`) which requires detecting one
-///   out of bytes on unix and utf16 codepoints on windows
-/// - bpaf needs to store ambigous combo of -f=bar and -f -b -a -r until user consumes -f either as
-///   a flag or as an argument and drop -b, -a and -r if it was an argument.
-/// - bpaf wants to prevent users from using parsers for -b, -a or -r before parser for -f
-///
-/// Conclusion: possible in theory but adds too much complexity for the value it offers.
+
 pub(crate) fn split_os_argument(input: &std::ffi::OsStr) -> Option<(ArgType, String, Option<Arg>)> {
     #[cfg(any(unix, windows))]
     {
@@ -473,7 +471,6 @@ pub(crate) fn split_os_argument(input: &std::ffi::OsStr) -> Option<(ArgType, Str
                 name.push(val);
             }
         }
-
         // keep collecting until = or the end of the input
         loop {
             match items.next() {
@@ -483,7 +480,16 @@ pub(crate) fn split_os_argument(input: &std::ffi::OsStr) -> Option<(ArgType, Str
                     if name.is_empty() {
                         return None;
                     }
-                    return Some((ty, str_from_vec(name)?, None));
+                    let first = name[0];
+                    if let Some(s) = str_from_vec(name) {
+                        return Some((ty, s, None));
+                    } else if first.is_ascii() {
+                        let mut s = String::with_capacity(1);
+                        s.push(first as char);
+                        return Some((ArgType::Short, s, None));
+                    } else {
+                        return None;
+                    }
                 }
             }
         }
