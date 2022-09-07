@@ -12,13 +12,13 @@ fn chain_commands() {
         .switch()
         .to_options()
         .command("a")
-        .sequential()
+        .adjacent()
         .map(Cmd::A);
     let b = short('b')
         .switch()
         .to_options()
         .command("b")
-        .sequential()
+        .adjacent()
         .map(Cmd::B);
     let parser = construct!([a, b]).many().to_options();
 

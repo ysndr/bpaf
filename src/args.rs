@@ -206,38 +206,47 @@ mod inner {
             }
         }
 
-        /// return sequentially removed range of size diff between self and source, if possible
-        pub(crate) fn sequentially_consumed_range(
-            &self,
-            source: &Self,
-            diff: usize,
-        ) -> Option<Range<usize>> {
-            let mut res = 0;
+        /// return sequentially removed range between self and source
+        ///
+        /// or an empty range None if sets of arguments are identical
+
+        pub(crate) fn first_adjacent_range(&self, args: &Self) -> Range<usize> {
+            if self.len() == args.len() {
+                return 0..0;
+            }
+
             let mut start = usize::MAX;
-            for (ix, (this, src)) in self.removed.iter().zip(source.removed.iter()).enumerate() {
-                // both removed - do nothing
-                // this removed, not removed - bump res
-                // this not removed and res > 0: stop
-                if !this && res > 0 || res >= diff {
-                    break;
-                } else if *this && !src {
-                    res += 1;
-                    if start == usize::MAX {
+            let mut end = self.removed.len();
+            for (ix, (this, orig)) in self.removed.iter().zip(args.removed.iter()).enumerate() {
+                if start == usize::MAX {
+                    if *this && !orig {
                         start = ix;
                     }
+                } else if !this {
+                    end = ix;
+                    break;
                 }
             }
-            if res == diff {
-                Some(start..start + diff)
-            } else {
-                None
-            }
+            start..end
         }
 
         pub(crate) fn remove_range(&mut self, range: Range<usize>) {
-            self.remaining -= range.len();
+            println!("removing range {:?}", range);
             for i in range {
+                if !self.removed[i] {
+                    self.remaining -= 1;
+                }
                 self.removed[i] = true;
+            }
+        }
+        pub(crate) fn restore_range(&mut self, range: Range<usize>, orig: &Self) {
+            println!("restore range {:?}", range);
+            for i in range {
+                if self.removed[i] && !orig.removed[i] {
+                    self.remaining += 1;
+                    println!("restoring {:?}", i);
+                }
+                self.removed[i] = orig.removed[i];
             }
         }
     }

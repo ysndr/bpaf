@@ -514,21 +514,133 @@ where
 }
 
 impl<P> PCon<P> {
-    pub fn sequential(self) -> PSeq<PCon<P>> {
-        PSeq { inner: self }
+    pub fn adjacent(self) -> PAdjacent<PCon<P>> {
+        PAdjacent { inner: self }
     }
 }
-
-pub struct PSeq<P> {
+// 1. find a value it would consume - this item should start
+//    a sequence of adjacent items
+// 2. extend a subparser to the right as far as possible
+//    selecting longest adjacent sequence of consumed things
+// 3. return the result
+//
+// 1. run as is to detect the first consumed item
+// 2. if succeeds - run with the adjacent prefix
+// 3. if fails without consuming anything - fail
+// - - run with expanding prefixes from the item
+//
+pub struct PAdjacent<P> {
     pub(crate) inner: P,
 }
 
-impl<T, P> Parser<T> for PSeq<P>
+impl<T, P> Parser<T> for PAdjacent<P>
 where
     P: Parser<T> + Sized,
     T: std::fmt::Debug,
 {
     fn eval(&self, args: &mut Args) -> Result<T, Error> {
+        // TODO - work in terms of cloned args and store the results?
+        let mut scratch = args.clone();
+
+        // first try to guess the start of the range, usually it's 0
+        // for adjacent commands but can be whatever for adjacent structs or multi args
+        let res = self.inner.eval(&mut scratch);
+        let start_guess = scratch.first_adjacent_range(args);
+
+        // no match at all
+        if start_guess.is_empty()
+            // first guess was good enough - starts at the beginning, succeeds and all adjacent
+            || (start_guess.start == 0
+                && start_guess.len() == args.len() - scratch.len()
+                && res.is_ok())
+        {
+            std::mem::swap(args, &mut scratch);
+            return res;
+        }
+
+        // then look for the end by stripping everything from the beginning
+        // this allows multi args, flagged commands and so on to parse
+        // successfully
+
+        let mut scratch = args.clone();
+        if start_guess.start > 1 {
+            scratch.remove_range(0..start_guess.start - 1);
+        }
+        let scratch_len = scratch.len();
+        let res = self.inner.eval(&mut scratch);
+        let end_guess = scratch.first_adjacent_range(args);
+
+        // if parsing is successful and all the consumed values are adjacent
+        // we can return that, but a bit more postprocessing is needed
+        if res.is_ok() && scratch_len - scratch.len() == end_guess.len() {
+            if start_guess.start > 1 {
+                scratch.restore_range(0..start_guess.start - 1, args);
+            }
+            std::mem::swap(args, &mut scratch);
+            return res;
+        }
+
+        // parsed, but now need to trim the right side - parser was a bit greedy
+        // needed for option structs and chained commands
+        let mut scratch = args.clone();
+        if start_guess.start > 1 {
+            scratch.remove_range(0..start_guess.start - 1);
+        }
+        scratch.remove_range(end_guess.end..args.items.len());
+        let res = self.inner.eval(&mut scratch);
+        if start_guess.start > 1 {
+            scratch.restore_range(0..start_guess.start - 1, args);
+        }
+        scratch.restore_range(end_guess.end..args.items.len(), args);
+
+        let last_guess = scratch.first_adjacent_range(args);
+
+        println!("args: {:?}", args);
+        println!("scratch: {:?}", scratch);
+        println!("res: {:?}", res);
+
+        let success = res.is_ok() && args.len() - scratch.len() == last_guess.len();
+        println!("{} - {} == {:?}?", scratch_len, scratch.len(), last_guess);
+        if start_guess.start > 1 {
+            scratch.restore_range(0..start_guess.start - 1, args);
+        }
+        scratch.restore_range(end_guess.end..args.items.len(), args);
+        std::mem::swap(args, &mut scratch);
+        // new parse is all adjacent - we can return that, need to restore the removed ranges
+        if success {
+            return res;
+        }
+
+        println!("Rcratch: {:?}", args);
+        // at this point we could not produce a good result,
+        // it's time to improve the error message and exit
+        todo!("");
+        /*
+                let mut res = self.inner.eval(args);
+
+                let mut initial_guess = match args.first_adjacent_range(&orig_args) {
+                    // perliminary run, if it fails to consume anything - just accept
+                    // the result whatever they may be
+                    None => return res,
+                    Some(range) => range,
+                };
+
+                // we are good to go here I think.
+                if res.is_ok() && initial_guess.len() == orig_args.len() - args.len() {
+                    return res;
+                } else if initial_guess.start > 0 {
+                    *args = orig_args.clone();
+                    args.remove_range(0..initial_guess.start);
+                    res = self.inner.eval(args);
+                    let start = initial_guess.start;
+                    initial_guess = args.first_adjacent_range(&orig_args).unwrap();
+                    initial_guess.start = start;
+                }
+
+                todo!("{:?}", initial_guess);
+        */
+        /*
+
         let mut previous = None;
         let mut prev_comp = None;
 
@@ -547,6 +659,7 @@ where
                     }
                 }
                 Err(err) => {
+                    println!("{:?}", sequence);
                     if let Some(Ok(_)) = previous {
                         break;
                     } else {
@@ -567,7 +680,7 @@ where
                 Ok(res)
             }
             None => self.inner.eval(args),
-        }
+        }*/
     }
 
     fn meta(&self) -> Meta {

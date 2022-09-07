@@ -905,8 +905,8 @@ pub struct Command<T> {
 }
 
 impl<T> Command<T> {
-    pub fn sequential(self) -> crate::structs::PSeq<Command<T>> {
-        crate::structs::PSeq { inner: self }
+    pub fn adjacent(self) -> crate::structs::PAdjacent<Command<T>> {
+        crate::structs::PAdjacent { inner: self }
     }
 }
 
