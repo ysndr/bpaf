@@ -114,6 +114,11 @@ mod inner {
             if let Some(ix) = del {
                 args.remove(ix);
             }
+            for ix in 0..args.items.len() {
+                if args.items.get(ix).map_or(false, Arg::is_sep) {
+                    args.remove(ix);
+                }
+            }
             args
         }
     }
@@ -324,7 +329,24 @@ impl Arg {
             Arg::Short(_, os) => os,
             Arg::Long(_, _) | Arg::Word(_) => return None,
         };
+        //        let x = os.len
         todo!("{:?}", os);
+    }
+
+    pub(crate) fn is_sep(&self) -> bool {
+        matches!(self, Arg::Short(' ', _))
+    }
+
+    pub(crate) fn is_implicit_short(&self) -> bool {
+        if let Arg::Short(_, os) = &self {
+            os.is_empty()
+        } else {
+            false
+        }
+    }
+
+    pub(crate) fn sep() -> Self {
+        Arg::Short(' ', OsString::new())
     }
 }
 
@@ -348,9 +370,14 @@ pub(crate) fn push_vec(vec: &mut Vec<Arg>, mut os: OsString, pos_only: &mut bool
 
     match split_os_argument(&os) {
         Some((ArgType::Short, short, None)) => {
+            let mut cnt = 0;
             for f in short.chars() {
                 vec.push(Arg::Short(f, os));
                 os = OsString::new();
+                cnt += 1;
+            }
+            if cnt > 1 {
+                vec.push(Arg::sep());
             }
         }
         Some((ArgType::Short, short, Some(arg))) => {
@@ -362,6 +389,11 @@ pub(crate) fn push_vec(vec: &mut Vec<Arg>, mut os: OsString, pos_only: &mut bool
             let key = short.chars().next().unwrap();
             vec.push(Arg::Short(key, os));
             vec.push(arg);
+        }
+        Some((ArgType::ShortPlus, short, _)) => {
+            vec.push(Arg::Short(short.chars().next().unwrap(), os));
+            vec.push(Arg::sep());
+            vec.push(Arg::sep());
         }
         Some((ArgType::Long, long, None)) => {
             vec.push(Arg::Long(long, os));
@@ -392,6 +424,7 @@ pub(crate) fn push_vec(vec: &mut Vec<Arg>, mut os: OsString, pos_only: &mut bool
 #[derive(Eq, PartialEq, Debug)]
 pub(crate) enum ArgType {
     Short,
+    ShortPlus,
     Long,
 }
 
@@ -483,10 +516,10 @@ pub(crate) fn split_os_argument(input: &std::ffi::OsStr) -> Option<(ArgType, Str
                     let first = name[0];
                     if let Some(s) = str_from_vec(name) {
                         return Some((ty, s, None));
-                    } else if first.is_ascii() {
+                    } else if ty == ArgType::Short && first.is_ascii() {
                         let mut s = String::with_capacity(1);
                         s.push(first as char);
-                        return Some((ArgType::Short, s, None));
+                        return Some((ArgType::ShortPlus, s, None));
                     } else {
                         return None;
                     }

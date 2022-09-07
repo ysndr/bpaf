@@ -343,7 +343,7 @@ pub mod batteries;
 
 #[doc(hidden)]
 pub use crate::info::Error;
-use crate::item::Item;
+use crate::{item::Item, structs::PAdjacent};
 use std::marker::PhantomData;
 #[doc(hidden)]
 pub use structs::PCon;
@@ -1492,6 +1492,13 @@ pub trait Parser<T> {
         ParseComp { inner: self, op }
     }
     // }}}
+
+    fn adjacent(self) -> PAdjacent<Self>
+    where
+        Self: Sized + Parser<T>,
+    {
+        PAdjacent { inner: self }
+    }
 
     /// Add extra annotations to completion information
     ///

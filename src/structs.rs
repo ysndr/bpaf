@@ -1,5 +1,5 @@
 //!
-use std::{marker::PhantomData, str::FromStr};
+use std::{marker::PhantomData, ops::Range, str::FromStr};
 
 use crate::{args::Arg, info::Error, Args, Meta, Parser};
 
@@ -514,9 +514,9 @@ where
 }
 
 impl<P> PCon<P> {
-    pub fn adjacent(self) -> PAdjacent<PCon<P>> {
-        PAdjacent { inner: self }
-    }
+    //    pub fn adjacent(self) -> PAdjacent<PCon<P>> {
+    //       PAdjacent { inner: self }
+    //  }
 }
 
 /// adjacency rules:
@@ -533,14 +533,14 @@ where
     T: std::fmt::Debug,
 {
     fn eval(&self, args: &mut Args) -> Result<T, Error> {
-        // TODO - work in terms of cloned args and store the results?
         let mut scratch = args.clone();
 
-        // first try to guess the start of the range, usually it's 0
-        // for adjacent commands but can be whatever for adjacent structs or multi args
         let res = self.inner.eval(&mut scratch);
         let start_guess = scratch.first_adjacent_range(args);
+        let r = refine_args_for_adj(&mut scratch, &args, start_guess);
+        todo!("{:?}", r);
 
+        /*
         // no match at all
         if start_guess.is_empty()
             // first guess was good enough - starts at the beginning, succeeds and all adjacent
@@ -630,6 +630,7 @@ where
         // at this point we could not produce a good result,
         // it's time to improve the error message and exit
         todo!("");
+        */
         /*
                 let mut res = self.inner.eval(args);
 
@@ -703,8 +704,25 @@ where
     }
 }
 
-fn refine_args_for_adjl(scratch: &mut Args, orig: &Args, guess: Range<usize>) -> bool {
-    todo!()
+// refining stops when inner parser
+// consumes get an adjacent set of arguments
+// with no composed shorts to collaps
+fn refine_args_for_adj(scratch: &mut Args, orig: &Args, guess: Range<usize>) -> bool {
+    for i in guess.start..guess.end {
+        // -ab > short+os, short+""
+        //
+        // short+os
+        if let Some(next) = scratch.items.get(i + 1) {
+            if next.is_implicit_short() {
+                todo!("need some explosions in {:?}", scratch);
+            }
+        }
+        //
+    }
+    for i in guess {
+        //
+    }
+    todo!("{:?}\n{:?}", scratch, orig)
 }
 
 /// Parser that replaces metavar placeholders with actual info in shell completion

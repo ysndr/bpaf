@@ -26,7 +26,7 @@ fn wtf_shenanigans_1() {
 
         let mut os_string = OsString::new();
         match i_c {
-            ArgType::Short => os_string.push("-"),
+            ArgType::Short | ArgType::ShortPlus => os_string.push("-"),
             ArgType::Long => os_string.push("--"),
         }
         os_string.push(&i_prefix);
@@ -55,7 +55,7 @@ fn wtf_shenanigans_2() {
 
         let mut os_string = OsString::new();
         match i_c {
-            ArgType::Short => os_string.push("-"),
+            ArgType::Short | ArgType::ShortPlus => os_string.push("-"),
             ArgType::Long => os_string.push("--"),
         }
         os_string.push(&i_prefix);

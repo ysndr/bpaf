@@ -905,9 +905,9 @@ pub struct Command<T> {
 }
 
 impl<T> Command<T> {
-    pub fn adjacent(self) -> crate::structs::PAdjacent<Command<T>> {
-        crate::structs::PAdjacent { inner: self }
-    }
+    //    pub fn adjacent(self) -> crate::structs::PAdjacent<Command<T>> {
+    //       crate::structs::PAdjacent { inner: self }
+    //   }
 }
 
 impl<P> Command<P> {
