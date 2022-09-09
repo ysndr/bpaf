@@ -343,7 +343,7 @@ pub mod batteries;
 
 #[doc(hidden)]
 pub use crate::info::Error;
-use crate::item::Item;
+use crate::{item::Item, structs::ParseCatch};
 use std::marker::PhantomData;
 #[doc(hidden)]
 pub use structs::PCon;
@@ -1492,6 +1492,22 @@ pub trait Parser<T> {
         ParseComp { inner: self, op }
     }
     // }}}
+
+    #[must_use]
+    /// Handle and ignore any failing parser
+    ///
+    /// Can be useful to decide to skip parsing of some items on a command line
+    /// When parser succeeds - `catch` would consume items and return the value
+    /// in wrapped `Some`, if it fails - `catch` would restore all the consumed values and return
+    /// None.
+    /// # Combinatoric usage
+    ///
+    fn catch(self) -> ParseCatch<Self>
+    where
+        Self: Sized + Parser<T>,
+    {
+        ParseCatch { inner: self }
+    }
 
     /// Add extra annotations to completion information
     ///
