@@ -254,6 +254,31 @@ mod inner {
                 self.removed[i] = orig.removed[i];
             }
         }
+
+        pub(crate) fn collapse_implisit_shorts(&mut self) {
+            let mut items = Vec::with_capacity(self.items.len());
+
+            let mut to_produce = None;
+            for ix in 0..self.items.len() {
+                if let Some((opt, arg)) = self.items[ix].as_posix_opt_opt() {
+                    items.push(opt);
+                    to_produce = Some(arg);
+                } else if self.removed[ix] {
+                    items.push(self.items[ix].clone());
+                } else if let Some(arg) = to_produce.take() {
+                    assert!(self.items[ix].is_implicit_short());
+                    items.push(arg);
+                } else if self.items[ix].is_implicit_short() {
+                    items.push(self.items[ix].clone());
+                    self.removed[ix] = true;
+                } else {
+                    items.push(self.items[ix].clone());
+                }
+            }
+            self.items = Rc::from(items);
+            self.remaining = self.removed.iter().filter(|x| !*x).count();
+            todo!("{:?}", self);
+        }
     }
 
     pub(crate) struct ArgSeqIter<'a> {
@@ -324,13 +349,17 @@ impl std::fmt::Display for Arg {
 }
 
 impl Arg {
-    pub(crate) fn as_posix_opt_opt(&self) -> Option<(OsString, OsString)> {
+    pub(crate) fn as_posix_opt_opt(&self) -> Option<(Arg, Arg)> {
         let os = match self {
             Arg::Short(_, os) => os,
             Arg::Long(_, _) | Arg::Word(_) => return None,
         };
-        //        let x = os.len
-        todo!("{:?}", os);
+        if os.is_empty() {
+            return None;
+        }
+        // TODO - use the right thing with unicode
+        let word = OsString::from(os.to_str().unwrap()[2..].to_owned());
+        Some((self.clone(), word_arg(word, false)))
     }
 
     pub(crate) fn is_sep(&self) -> bool {

@@ -714,7 +714,8 @@ fn refine_args_for_adj(scratch: &mut Args, orig: &Args, guess: Range<usize>) -> 
         // short+os
         if let Some(next) = scratch.items.get(i + 1) {
             if next.is_implicit_short() {
-                todo!("need some explosions in {:?}", scratch);
+                scratch.collapse_implisit_shorts();
+                return true;
             }
         }
         //
