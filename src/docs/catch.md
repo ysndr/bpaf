@@ -46,13 +46,13 @@ Options { version: None, feature: None }
 
 Decimal value - version parser succeeds
 ```console
-% app  10
+% app 10
 Options { version: Some(10), feature: None }
 ```
 
 String value - version parser fails, catch handles that.
 ```console
-% app  feature
+% app feature
 Options { version: None, feature: Some("feature") }
 ```
 
