@@ -38,22 +38,31 @@ pub struct Options {
 <summary>Examples</summary>
 
 
-No argument, both parsers succeed due to [`option`]
+No argument, both parsers succeed due to [`optional`](Parser::optional) alone
 ```console
 % app 
 Options { version: None, feature: None }
 ```
 
-Decimal value - version parser succeeds
+Decimal value - version parser succeeds, second parser returns None due to
+[`optional`](Parser::optional)
 ```console
 % app 10
 Options { version: Some(10), feature: None }
 ```
 
-String value - version parser fails, catch handles that.
+String value - `version` parser fails, catch handles that, second parser
+handles still available `"feature"`
 ```console
 % app feature
 Options { version: None, feature: Some("feature") }
+```
+
+Two values are present, both parsers succeed
+handles still available `"feature"`
+```console
+% app 1000 feature
+Options { version: Some(1000), feature: Some("feature") }
 ```
 
 </details>

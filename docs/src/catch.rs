@@ -1,5 +1,6 @@
 mod combine;
 
+#[rustfmt::skip]
 #[test]
 fn combine_works() {
     use bpaf::*;
@@ -19,9 +20,15 @@ fn combine_works() {
     let r = options.run_inner(args).unwrap();
     let r = format!("{:?}", r);
     assert_eq!(r, "Options { version: None, feature: Some(\"feature\") }");
+
+    let args = Args::from(&["1000", "feature"]);
+    let r = options.run_inner(args).unwrap();
+    let r = format!("{:?}", r);
+    assert_eq!(r, "Options { version: Some(1000), feature: Some(\"feature\") }");
 }
 mod derive;
 
+#[rustfmt::skip]
 #[test]
 fn derive_works() {
     use bpaf::*;
@@ -41,4 +48,9 @@ fn derive_works() {
     let r = options.run_inner(args).unwrap();
     let r = format!("{:?}", r);
     assert_eq!(r, "Options { version: None, feature: Some(\"feature\") }");
+
+    let args = Args::from(&["1000", "feature"]);
+    let r = options.run_inner(args).unwrap();
+    let r = format!("{:?}", r);
+    assert_eq!(r, "Options { version: Some(1000), feature: Some(\"feature\") }");
 }
