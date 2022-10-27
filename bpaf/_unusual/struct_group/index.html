@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Structure groups: `--foo --foo-1 ARG1 --foo-2 ARG2 --foo-3 ARG3`"><meta name="keywords" content="rust, rustlang, rust-lang, struct_group"><title>bpaf::_unusual::struct_group - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"><a href="#">Module struct_group</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../bpaf/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">bpaf</a>::<wbr><a href="../index.html">_unusual</a>::<wbr><a class="mod" href="#">struct_group</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../../src/bpaf/_unusual.rs.html#55">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h3 id="structure-groups---foo---foo-1-arg1---foo-2-arg2---foo-3-arg3"><a href="#structure-groups---foo---foo-1-arg1---foo-2-arg2---foo-3-arg3">Structure groups: <code>--foo --foo-1 ARG1 --foo-2 ARG2 --foo-3 ARG3</code></a></h3>
+<p>Groups of options that can be specified multiple times. All such groups should be kept without
+overwriting previous one.</p>
+<div class="example-wrap"><pre class="language-console"><code> $ prometheus_sensors_exporter \
+     \
+     `# 2 physical sensors located on physycial different i2c bus or address` \
+     --sensor \
+         --sensor-device=tmp102 \
+         --sensor-name=&quot;temperature_tmp102_outdoor&quot; \
+         --sensor-i2c-bus=0 \
+         --sensor-i2c-address=0x48 \
+     --sensor \
+         --sensor-device=tmp102 \
+         --sensor-name=&quot;temperature_tmp102_indoor&quot; \
+         --sensor-i2c-bus=1 \
+         --sensor-i2c-address=0x49 \</code></pre></div><details>
+<summary style="display: list-item;">Combinatoric usage</summary>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
+    <span class="ident">switch</span>: <span class="ident">bool</span>,
+    <span class="ident">multi</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rect</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Rect</span> {
+    <span class="ident">item</span>: (),
+    <span class="ident">width</span>: <span class="ident">usize</span>,
+    <span class="ident">height</span>: <span class="ident">usize</span>,
+    <span class="ident">painted</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">multi</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">Rect</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">long</span>(<span class="string">&quot;rect&quot;</span>).<span class="ident">req_flag</span>(());
+    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">long</span>(<span class="string">&quot;width&quot;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="string">&quot;PX&quot;</span>);
+    <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">long</span>(<span class="string">&quot;height&quot;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="string">&quot;PX&quot;</span>);
+    <span class="kw">let</span> <span class="ident">painted</span> <span class="op">=</span> <span class="ident">long</span>(<span class="string">&quot;painted&quot;</span>).<span class="ident">switch</span>();
+    <span class="macro">construct!</span>(<span class="ident">Rect</span> {
+        <span class="ident">item</span>,
+        <span class="ident">width</span>,
+        <span class="ident">height</span>,
+        <span class="ident">painted</span>,
+    })
+    .<span class="ident">adjacent</span>()
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">options</span>() -&gt; <span class="ident">OptionParser</span><span class="op">&lt;</span><span class="ident">Options</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">switch</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;s&#39;</span>).<span class="ident">switch</span>();
+    <span class="kw">let</span> <span class="ident">multi</span> <span class="op">=</span> <span class="ident">multi</span>().<span class="ident">many</span>();
+    <span class="macro">construct!</span>(<span class="ident">Options</span> { <span class="ident">multi</span>, <span class="ident">switch</span> }).<span class="ident">to_options</span>()
+}</code></pre></div>
+</details>
+<details>
+<summary style="display: list-item;">Examples</summary>
+<p>Order of items within the rectangle is not significant and you can have several of them</p>
+<div class="example-wrap"><pre class="language-console"><code>% app --rect --width 10 --height 10 --rect --height 10 --width 10
+Options { switch: false, multi: [Rect { item: (), width: 10, height: 10, painted: false }, Rect { item: (), width: 10, height: 10, painted: false }] }</code></pre></div>
+<p>You can have optional values that belong to the group inside and outer flags in the middle</p>
+<div class="example-wrap"><pre class="language-console"><code>% app --rect --width 10 --painted --height 10 -s --rect --height 10 --width 10
+Options { switch: true, multi: [Rect { item: (), width: 10, height: 10, painted: true }, Rect { item: (), width: 10, height: 10, painted: false }] }</code></pre></div>
+<p>But with <code>adjacent</code> they cannot interleave</p>
+<div class="example-wrap"><pre class="language-console"><code>% app --rect --rect --width 10 --painted --height 10 --height 10 --width 10
+Expected --width PX, pass --help for usage information</code></pre></div></details></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="bpaf" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

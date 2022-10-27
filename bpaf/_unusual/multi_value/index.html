@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Multi-value arguments: `--foo ARG1 ARG2 ARG3`"><meta name="keywords" content="rust, rustlang, rust-lang, multi_value"><title>bpaf::_unusual::multi_value - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"><a href="#">Module multi_value</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../bpaf/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">bpaf</a>::<wbr><a href="../index.html">_unusual</a>::<wbr><a class="mod" href="#">multi_value</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../../src/bpaf/_unusual.rs.html#32">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h3 id="multi-value-arguments---foo-arg1-arg2-arg3"><a href="#multi-value-arguments---foo-arg1-arg2-arg3">Multi-value arguments: <code>--foo ARG1 ARG2 ARG3</code></a></h3><details>
+<summary style="display: list-item;">Combinatoric usage</summary>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
+    <span class="ident">multi</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Multi</span><span class="op">&gt;</span>,
+    <span class="ident">switch</span>: <span class="ident">bool</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Multi</span> {
+    <span class="ident">m</span>: (),
+    <span class="ident">val_1</span>: <span class="ident">usize</span>,
+    <span class="ident">val_2</span>: <span class="ident">usize</span>,
+    <span class="ident">val_3</span>: <span class="ident">f64</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">multi</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">Multi</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;m&#39;</span>).<span class="ident">req_flag</span>(());
+    <span class="kw">let</span> <span class="ident">val_1</span> <span class="op">=</span> <span class="ident">positional</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="string">&quot;V1&quot;</span>);
+    <span class="kw">let</span> <span class="ident">val_2</span> <span class="op">=</span> <span class="ident">positional</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="string">&quot;V2&quot;</span>);
+    <span class="kw">let</span> <span class="ident">val_3</span> <span class="op">=</span> <span class="ident">positional</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>(<span class="string">&quot;V3&quot;</span>);
+    <span class="macro">construct!</span>(<span class="ident">Multi</span> {
+        <span class="ident">m</span>,
+        <span class="ident">val_1</span>,
+        <span class="ident">val_2</span>,
+        <span class="ident">val_3</span>
+    })
+    .<span class="ident">adjacent</span>()
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">options</span>() -&gt; <span class="ident">OptionParser</span><span class="op">&lt;</span><span class="ident">Options</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">switch</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;s&#39;</span>).<span class="ident">switch</span>();
+    <span class="kw">let</span> <span class="ident">multi</span> <span class="op">=</span> <span class="ident">multi</span>().<span class="ident">many</span>();
+    <span class="macro">construct!</span>(<span class="ident">Options</span> { <span class="ident">multi</span>, <span class="ident">switch</span> }).<span class="ident">to_options</span>()
+}</code></pre></div>
+</details>
+<details>
+<summary style="display: list-item;">Derive usage</summary>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Bpaf</span>)]</span>
+<span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">options</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
+    <span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">external</span>, <span class="ident">many</span>)]</span>
+    <span class="ident">multi</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Multi</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">short</span>)]</span>
+    <span class="ident">switch</span>: <span class="ident">bool</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Bpaf</span>)]</span>
+<span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">adjacent</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Multi</span> {
+    <span class="ident">m</span>: (),
+    <span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">positional</span>(<span class="string">&quot;V1&quot;</span>))]</span>
+    <span class="ident">val_1</span>: <span class="ident">usize</span>,
+    <span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">positional</span>(<span class="string">&quot;V2&quot;</span>))]</span>
+    <span class="ident">val_2</span>: <span class="ident">usize</span>,
+    <span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">positional</span>(<span class="string">&quot;V3&quot;</span>))]</span>
+    <span class="ident">val_3</span>: <span class="ident">f64</span>,
+}</code></pre></div>
+</details>
+<details>
+<summary style="display: list-item;">Examples</summary>
+<p>short flag <code>-m</code> takes 3 positional arguments: two integers and one floating point, order is
+important, switch <code>-s</code> can go on either side of it</p>
+<div class="example-wrap"><pre class="language-console"><code>% app -s -m 10 20 3.1415
+Options { multi: [Multi { m: (), val_1: 10, val_2: 20, val_3: 3.1415 }], switch: true }</code></pre></div>
+<p>parser accepts multiple groups of <code>-m</code> - they must not interleave</p>
+<div class="example-wrap"><pre class="language-console"><code>% app -s -m 10 20 3.1415 -m 1 2 0.0
+Options { multi: [Multi { m: (), val_1: 10, val_2: 20, val_3: 3.1415 }, Multi { m: (), val_1: 1, val_2: 2, val_3: 0.0 }], switch: true }</code></pre></div>
+<p><code>-s</code> can’t go in the middle as the parser expects the second item</p>
+<div class="example-wrap"><pre class="language-console"><code>% app -m 10 20 -s 3.1415
+Expected &lt;V3&gt;, pass --help for usage information</code></pre></div></details></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="bpaf" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

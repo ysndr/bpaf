@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Compose several parsers to produce a single result"><meta name="keywords" content="rust, rustlang, rust-lang, construct"><title>construct in bpaf - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In bpaf</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../bpaf/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">bpaf</a>::<wbr><a class="macro" href="#">construct</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/bpaf/lib.rs.html#610-647">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules!</span> <span class="ident">construct</span> {
+    ($(::)<span class="question-mark">?</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ns</span>:<span class="ident">ident</span> $(:: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">con</span>:<span class="ident">ident</span>)<span class="op">*</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tokens</span>:<span class="ident">tt</span>)<span class="op">*</span> }) =&gt; { ... };
+    ($(::)<span class="question-mark">?</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ns</span>:<span class="ident">ident</span> $(:: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">con</span>:<span class="ident">ident</span>)<span class="op">*</span> ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tokens</span>:<span class="ident">tt</span>)<span class="op">*</span> )) =&gt; { ... };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">first</span>:<span class="ident">ident</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tokens</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; { ... };
+    ([<span class="macro-nonterminal">$</span><span class="macro-nonterminal">first</span>:<span class="ident">ident</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tokens</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]) =&gt; { ... };
+    (@<span class="ident">prepare</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">tt</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fields</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">ident</span> () $(, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span> ) =&gt; { ... };
+    (@<span class="ident">prepare</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">tt</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fields</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">ident</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">expr</span>) $(, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>) =&gt; { ... };
+    (@<span class="ident">prepare</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">tt</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fields</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">ident</span> $(, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span> ) =&gt; { ... };
+    (@<span class="ident">prepare</span> [<span class="ident">alt</span>] [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">first</span>:<span class="ident">ident</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fields</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>]) =&gt; { ... };
+    (@<span class="ident">prepare</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">tt</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fields</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]) =&gt; { ... };
+    (@<span class="ident">make</span> [<span class="ident">named</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">con</span>:<span class="ident">tt</span>)<span class="op">+</span>]] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fields</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>]) =&gt; { ... };
+    (@<span class="ident">make</span> [<span class="ident">pos</span>   [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">con</span>:<span class="ident">tt</span>)<span class="op">+</span>]] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fields</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>]) =&gt; { ... };
+    (@<span class="ident">make</span> [<span class="ident">pos</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fields</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>]) =&gt; { ... };
+}</code></pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Compose several parsers to produce a single result</p>
+<h2 id="usage-reference"><a href="#usage-reference">Usage reference</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// structs with unnamed fields:</span>
+<span class="macro">construct!</span>(<span class="ident">Res</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>));
+
+<span class="comment">// structs with named fields:</span>
+<span class="macro">construct!</span>(<span class="ident">Res</span> {<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>});
+
+<span class="comment">// enums with unnamed fields:</span>
+<span class="macro">construct!</span>(<span class="ident">Ty::Res</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>));
+
+<span class="comment">// enums with named fields:</span>
+<span class="macro">construct!</span>(<span class="ident">Ty::Res</span> {<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>});
+
+<span class="comment">// tuples:</span>
+<span class="macro">construct!</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>);
+
+<span class="comment">// parallel composition, tries all parsers, picks one that consumes the left most value,</span>
+<span class="comment">// or if they consume the same (or not at all) - the left most in a list</span>
+<span class="macro">construct!</span>([<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>]);
+
+<span class="comment">// defining primitive parsers inside construct macro :)</span>
+<span class="macro">construct!</span>(<span class="ident">a</span>(<span class="ident">short</span>(<span class="string">&#39;a&#39;</span>).<span class="ident">switch</span>()), <span class="ident">b</span>(<span class="ident">long</span>(<span class="string">&quot;arg&quot;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="string">&quot;ARG&quot;</span>)));
+
+<span class="comment">// defining a boxed parser</span>
+<span class="macro">construct!</span>(<span class="ident">a</span>);</code></pre></div>
+<h2 id="combinatoric-usage"><a href="#combinatoric-usage">Combinatoric usage</a></h2>
+<p><code>construct!</code> can compose parsers sequentially or in parallel.</p>
+<p>Sequential composition runs each parser and if all of them succeed you get a parser object of a
+new type back. Placeholder names for values inside <code>construct!</code> macro must correspond to both
+struct/enum names and parser names present in scope. In examples below <code>a</code> corresponds to a
+function and <code>b</code> corresponds to a variable name. Note parens in <code>a()</code>, you must to use them to
+indicate function parsers.</p>
+<p>Inside the parens you can put a whole expression to use instead of
+having to define them in advance: <code>a(positional::&lt;String&gt;(&quot;POS&quot;))</code>. Probably a good idea to use this
+approach only for simple parsers.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct</span> <span class="ident">Res</span> (<span class="ident">u32</span>, <span class="ident">u32</span>);
+<span class="kw">enum</span> <span class="ident">Ul</span> { <span class="ident">T</span> { <span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span> } }
+
+<span class="comment">// You can share parameters across multiple construct invocations</span>
+<span class="comment">// if defined as functions</span>
+<span class="kw">fn</span> <span class="ident">a</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="ident">short</span>(<span class="string">&#39;a&#39;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;N&quot;</span>)
+}
+
+<span class="comment">// You can construct structs or enums with unnamed fields</span>
+<span class="kw">fn</span> <span class="ident">res</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">Res</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;b&#39;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;n&quot;</span>);
+    <span class="macro">construct!</span>(<span class="ident">Res</span> ( <span class="ident">a</span>(), <span class="ident">b</span> ))
+}
+
+<span class="comment">// You can construct structs or enums with named fields</span>
+<span class="kw">fn</span> <span class="ident">ult</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">Ul</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;b&#39;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;n&quot;</span>);
+    <span class="macro">construct!</span>(<span class="ident">Ul::T</span> { <span class="ident">a</span>(), <span class="ident">b</span> })
+}
+
+<span class="comment">// You can also construct simple tuples</span>
+<span class="kw">fn</span> <span class="ident">tuple</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">u32</span>)<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;b&#39;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;n&quot;</span>);
+    <span class="macro">construct!</span>(<span class="ident">a</span>(), <span class="ident">b</span>)
+}
+
+<span class="comment">// You can create boxed version of parsers so the type matches as long</span>
+<span class="comment">// as return type is the same - can be useful for all sort of dynamic parsers</span>
+<span class="kw">fn</span> <span class="ident">boxed</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;a&#39;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;n&quot;</span>);
+    <span class="macro">construct!</span>(<span class="ident">a</span>)
+}
+
+<span class="comment">// In addition to having primitives defined before using them - you can also define</span>
+<span class="comment">// them directly inside construct macro. Probably only a good idea if you have only simple</span>
+<span class="comment">// components</span>
+<span class="kw">struct</span> <span class="ident">Options</span> {
+    <span class="ident">arg</span>: <span class="ident">u32</span>,
+    <span class="ident">switch</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">coyoda</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">Options</span><span class="op">&gt;</span> {
+    <span class="macro">construct!</span>(<span class="ident">Options</span> {
+        <span class="ident">arg</span>(<span class="ident">short</span>(<span class="string">&#39;a&#39;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;ARG&quot;</span>)),
+        <span class="ident">switch</span>(<span class="ident">short</span>(<span class="string">&#39;s&#39;</span>).<span class="ident">switch</span>())
+    })
+}</code></pre></div>
+<p>Parallel composition picks one of several available parsers (result types must match) and returns a
+parser object of the same type. Similar to sequential composition you can use parsers from variables
+or functions:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn</span> <span class="ident">b</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="ident">short</span>(<span class="string">&#39;b&#39;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;NUM&quot;</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">a_or_b</span>() -&gt; <span class="kw">impl</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;a&#39;</span>).<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;NUM&quot;</span>);
+    <span class="comment">// equivalent way of writing this would be `a.or_else(b())`</span>
+    <span class="macro">construct!</span>([<span class="ident">a</span>, <span class="ident">b</span>()])
+}</code></pre></div>
+<h2 id="derive-usage"><a href="#derive-usage">Derive usage</a></h2>
+<p><code>bpaf_derive</code> would combine fields of struct or enum constructors sequentially and enum
+variants in parallel.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// to satisfy this parser user needs to pass both -a and -b</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Bpaf</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Res</span> {
+    <span class="ident">a</span>: <span class="ident">u32</span>,
+    <span class="ident">b</span>: <span class="ident">u32</span>,
+}
+
+<span class="comment">// to satisfy this parser user needs to pass one (and only one) of -a, -b, -c or -d</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Bpaf</span>)]</span>
+<span class="kw">enum</span> <span class="ident">Enumeraton</span> {
+    <span class="ident">A</span> { <span class="ident">a</span>: <span class="ident">u32</span> },
+    <span class="ident">B</span> { <span class="ident">b</span>: <span class="ident">u32</span> },
+    <span class="ident">C</span> { <span class="ident">c</span>: <span class="ident">u32</span> },
+    <span class="ident">D</span> { <span class="ident">d</span>: <span class="ident">u32</span> },
+}
+
+<span class="comment">// here user needs to pass either both -a AND -b or both -c AND -d</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Bpaf</span>)]</span>
+<span class="kw">enum</span> <span class="ident">Ult</span> {
+    <span class="ident">AB</span> { <span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span> },
+    <span class="ident">CD</span> { <span class="ident">c</span>: <span class="ident">u32</span>, <span class="ident">d</span>: <span class="ident">u32</span> }
+}</code></pre></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="bpaf" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

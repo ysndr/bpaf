@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Applicative functors? What is it about?"><meta name="keywords" content="rust, rustlang, rust-lang, _applicative"><title>bpaf::_applicative - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"><a href="#">Module _applicative</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../bpaf/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">bpaf</a>::<wbr><a class="mod" href="#">_applicative</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../src/bpaf/_applicative.rs.html#1-180">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="applicative-functors-what-is-it-about"><a href="#applicative-functors-what-is-it-about">Applicative functors? What is it about?</a></h2>
+<p>You don’t need to read/understand this chapter in order to use the library but it might
+help to understand what makes it tick.</p>
+<h3 id="functors"><a href="#functors">Functors</a></h3>
+<p>Let’s start by talking about what a <code>Functor</code> is. Wikipedia defines it as a “design pattern
+that allows for a generic type to apply a function inside without changing the structure of
+the generic type”. Sounds scary, but in Rust terms it’s a trait that takes a value or values
+in a container (or more general <em>value in a context</em> ) such as <code>Option&lt;A&gt;</code> and a function
+<code>fn(A) -&gt; B</code> and gives you <code>Option&lt;B&gt;</code> back.</p>
+<p>Closest analogy in a real code you can write in Rust right now would be modifying an <code>Option</code>
+using only <code>Option::map</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn</span> <span class="ident">plus_one</span>(<span class="ident">input</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="ident">input</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>)
+}
+
+<span class="kw">let</span> <span class="ident">present</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">10</span>);
+<span class="kw">let</span> <span class="ident">absent</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">plus_one</span>(<span class="ident">present</span>), <span class="prelude-val">Some</span>(<span class="number">11</span>));
+<span class="macro">assert_eq!</span>(<span class="ident">plus_one</span>(<span class="ident">absent</span>), <span class="prelude-val">None</span>);</code></pre></div>
+<p><code>Vec</code>, <code>Result</code> and other types that implement <code>map</code> are <code>Functors</code> as well, but <code>Functor</code>
+is not limited just to containers - you don’t have to have a value inside to be able to
+manipulate it. In fact a regular rust function is also a <code>Functor</code> if you squint hard enough.
+Consider <code>Reader</code> that allows you to perform transformations on a <em>value in a context</em> <code>T</code>
+without having any value until it the execution time:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct</span> <span class="ident">Reader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">T</span>) -&gt; <span class="ident">T</span><span class="op">&gt;</span>);
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">Reader</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Initialize an new value in a context</span>
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>))
+    }
+
+    <span class="doccomment">/// Modify a value in a context</span>
+    <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>:  <span class="ident">Fn</span>(<span class="ident">T</span>) -&gt; <span class="ident">T</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">f</span>((<span class="self">self</span>.<span class="number">0</span>)(<span class="ident">x</span>))))
+    }
+
+    <span class="doccomment">/// Apply the changes by giving it the initial value</span>
+    <span class="kw">fn</span> <span class="ident">run</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="ident">T</span>) -&gt; <span class="ident">T</span> {
+        (<span class="self">self</span>.<span class="number">0</span>)(<span class="ident">input</span>)
+    }
+}
+
+<span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">Reader</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::new</span>();
+<span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="op">+</span> <span class="number">1</span>);
+<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">run</span>(<span class="number">10</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="number">11</span>);</code></pre></div>
+<p>Not all the collections are <code>Functors</code> - by <code>Functor</code> laws mapping the <em>value in context</em>
+shouldn’t change the shape so any collections where shape depends on a value, such as <code>HashSet</code>
+or <code>BTreeSet</code> are out.</p>
+<h3 id="applicative-functors"><a href="#applicative-functors">Applicative Functors</a></h3>
+<p><code>map</code> in <code>Functor</code> is limited to a single <em>value in a context</em>, <code>Applicative Functor</code> extends it
+to operations combining multiple values, closest Rust analogy would be doing computations on
+<code>Option</code> or <code>Result</code> using only <code>?</code>, having <code>Some</code>/<code>Ok</code> around the whole expression and not using <code>return</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn</span> <span class="ident">add_numbers</span>(<span class="ident">input_a</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">input_b</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="prelude-val">Some</span>(<span class="ident">input_a</span><span class="question-mark">?</span> <span class="op">+</span> <span class="ident">input_b</span><span class="question-mark">?</span>)
+}
+
+<span class="kw">let</span> <span class="ident">present_1</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">10</span>);
+<span class="kw">let</span> <span class="ident">present_2</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">20</span>);
+<span class="kw">let</span> <span class="ident">absent</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">add_numbers</span>(<span class="ident">present_1</span>, <span class="ident">present_2</span>), <span class="prelude-val">Some</span>(<span class="number">30</span>));
+<span class="macro">assert_eq!</span>(<span class="ident">add_numbers</span>(<span class="ident">present_1</span>, <span class="ident">absent</span>), <span class="prelude-val">None</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">add_numbers</span>(<span class="ident">absent</span>, <span class="ident">absent</span>), <span class="prelude-val">None</span>);</code></pre></div>
+<p>Similarly to <code>Functors</code>, <code>Applicative Functors</code> are not limited to containers and can
+represent <em>a value in an arbitrary context</em>.</p>
+<p><code>Try</code> trait (<code>?</code>) for <code>Option</code> and <code>Result</code> short circuits when it finds a missing value,
+but <code>Applicative Functors</code> in general don’t have to - in fact to implement dynamic completion
+<code>bpaf</code> needs to check items past the first failure point to collect all the possible
+completions.</p>
+<h3 id="alternative-functors"><a href="#alternative-functors">Alternative Functors</a></h3>
+<p>So far <code>Applicative Functors</code> allow us to create structs containing multiple fields out of
+individual parsers for each field. <code>Alternative</code> extends <code>Applicative</code> with two extra
+things: one for combining two <em>values in a context</em> into one and and an idenity element
+for this operation. In Rust a closest analogy would be <code>Option::or</code> and <code>Option::None</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn</span> <span class="ident">pick_number</span>(<span class="ident">a</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">b</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="ident">a</span>.<span class="ident">or</span>(<span class="ident">b</span>)
+}
+
+<span class="kw">let</span> <span class="ident">present_1</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">10</span>);
+<span class="kw">let</span> <span class="ident">present_2</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">20</span>);
+<span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+<span class="macro">assert_eq!</span>(<span class="ident">pick_number</span>(<span class="ident">present_1</span>, <span class="ident">present_2</span>), <span class="ident">present_1</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">pick_number</span>(<span class="ident">present_1</span>, <span class="ident">empty</span>), <span class="ident">present_1</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">pick_number</span>(<span class="ident">empty</span>, <span class="ident">present_1</span>), <span class="ident">present_1</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">pick_number</span>(<span class="ident">empty</span>, <span class="ident">empty</span>), <span class="ident">empty</span>);</code></pre></div>
+<h3 id="parser-trait-and-construct-macro"><a href="#parser-trait-and-construct-macro"><code>Parser</code> trait and <code>construct!</code> macro</a></h3>
+<p><a href="../trait.Parser.html" title="Parser"><code>Parser</code></a> trait defines a context for values and gives access to <code>Functor</code> laws and <a href="../macro.construct.html" title="construct!"><code>construct!</code></a>
+macro allows to compose several values according to <code>Applicative</code> and <code>Alternative</code> laws.</p>
+<h3 id="so-why-use-applicative-functors-then"><a href="#so-why-use-applicative-functors-then">So why use <code>Applicative Functors</code> then?</a></h3>
+<p>As a user I want to be able to express requirements using full power of Rust algebraic
+datatypes: <code>struct</code> for product types and <code>enum</code> for sum types. To give an example -
+<code>cargo-show-asm</code> asks user to specify what to output - Intel or AT&amp;T asm, LLVM or Rust’s MIR
+and opts to represent it as one of four flags: <code>--intel</code>, <code>--att</code>, <code>--llvm</code> and <code>--mir</code>. While
+each flag can be though of a boolean value - present/absent - consuming it as an <code>enum</code> with four
+possible values is much more convenient compared to a struct-like thing that can have any
+combination of the flags inside:</p>
+<div class="example-wrap"><pre class="language-no_check"><code>/// Format selection as enum - program needs to deal with just one format
+enum Format {
+    Intel,
+    Att,
+    Llvm,
+    Mir
+}
+
+/// Format selection as struct - can represent any possible combination of formats
+struct Formats {
+    intel: bool,
+    att: bool,
+    llvm: bool,
+    mir: bool,
+}</code></pre></div>
+<p><code>Applicative</code> interface gives just enough power to compose simple parsers as an arbitrary tree
+ready for consumption.</p>
+<p>As a library author I need to be able to extract information from the tree constructed by user
+to generate <code>--help</code> information and do command line completion. As long as the tree uses only
+<code>Applicative</code> powers - it is possible to evaluate it without giving it any input.
+Adding <code>Monadic</code> powers (deciding what to parse next depending on the previous input) would
+make this impossible.</p>
+<p>So <code>Applicative Functors</code> sits right in the middle between what users want to express and
+library can consume.</p>
+<p>To recap - all sorts of Functors listed here only define laws to how individual parts are
+composed, how values in context can be transformed and how pure values can be turned into a
+functor, but not how the values are parsed or how they can be extracted.</p>
+<h3 id="putting-the-values-into-a-context"><a href="#putting-the-values-into-a-context">Putting the values into a context</a></h3>
+<p>Similarly to how <code>Reader</code> defined above <code>bpaf</code>’s <code>Parsers</code> don’t actually have values inside
+until they are executed. Instead starting points (<a href="../params/struct.NamedArg.html#method.flag"><code>flag</code></a>, <a href="../fn.positional.html" title="positional"><code>positional</code></a>,
+<a href="../params/struct.NamedArg.html#method.argument"><code>argument</code></a>, etc) define what exactly needs to be consumed, various mapping
+functions define transformations, <a href="../macro.construct.html" title="construct!"><code>construct!</code></a> composes them and defines the relative order
+values should be consumed. Not everything present inside <a href="../trait.Parser.html" title="Parser"><code>Parser</code></a> can be repesented in terms
+of plain applicative functors - specifically <a href="../trait.Parser.html#method.parse"><code>parse</code></a> is not and it is best
+though of as a function that takes one applicative and gives a different applicative back.
+The actual values will show up inside once <code>bpaf</code> starts running the <a href="../struct.OptionParser.html" title="OptionParser"><code>OptionParser</code></a> with
+<a href="../struct.OptionParser.html#method.run"><code>run</code></a>.</p>
+<h3 id="taking-the-results-out"><a href="#taking-the-results-out">Taking the results out</a></h3>
+<p>The rest of the execution is relatively simple: getting console arguments from OS, doing the
+initial split into short/long flags and standalone words, disambiguating groups of short
+options from short options with attached values and applying all the transformations like
+<code>Reader::run</code> above would do.</p>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="bpaf" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

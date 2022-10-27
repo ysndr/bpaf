@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A flag/switch/argument that has a long name"><meta name="keywords" content="rust, rustlang, rust-lang, long"><title>long in bpaf::params - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../bpaf/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In bpaf::params</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../bpaf/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Function <a href="../index.html">bpaf</a>::<wbr><a href="index.html">params</a>::<wbr><a class="fn" href="#">long</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../src/bpaf/params.rs.html#176-183">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust fn"><code>pub fn long(long: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/1.64.0/std/primitive.str.html">str</a>) -&gt; <a class="struct" href="struct.NamedArg.html" title="struct bpaf::params::NamedArg">NamedArg</a></code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A flag/switch/argument that has a long name</p>
+<p>You can specify it multiple times, <code>bpaf</code> would use items past the first of each <code>short</code> and <code>long</code> as
+hidden aliases.</p>
+<details>
+<summary style="display: list-item;">Combinatoric usage</summary>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
+    <span class="ident">switch</span>: <span class="ident">bool</span>,
+    <span class="ident">arg</span>: <span class="ident">usize</span>,
+    <span class="ident">username</span>: <span class="ident">String</span>,
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">options</span>() -&gt; <span class="ident">OptionParser</span><span class="op">&lt;</span><span class="ident">Options</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">switch</span> <span class="op">=</span> <span class="ident">short</span>(<span class="string">&#39;s&#39;</span>) <span class="comment">// first `short` creates a builder</span>
+        .<span class="ident">short</span>(<span class="string">&#39;S&#39;</span>) <span class="comment">// second switch is a hidden alias</span>
+        .<span class="ident">long</span>(<span class="string">&quot;switch&quot;</span>) <span class="comment">// visible long name</span>
+        .<span class="ident">long</span>(<span class="string">&quot;also-switch&quot;</span>) <span class="comment">// hidden alias</span>
+        .<span class="ident">help</span>(<span class="string">&quot;Switch with many names&quot;</span>)
+        .<span class="ident">switch</span>(); <span class="comment">// `switch` finalizes the builder</span>
+
+    <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident">long</span>(<span class="string">&quot;argument&quot;</span>) <span class="comment">// long is also a builder</span>
+        .<span class="ident">short</span>(<span class="string">&#39;a&#39;</span>)
+        .<span class="ident">short</span>(<span class="string">&#39;A&#39;</span>)
+        .<span class="ident">long</span>(<span class="string">&quot;also-arg&quot;</span>)
+        .<span class="ident">help</span>(<span class="string">&quot;Argument with names&quot;</span>)
+        .<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="string">&quot;ARG&quot;</span>);
+
+    <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">long</span>(<span class="string">&quot;user&quot;</span>)
+        .<span class="ident">short</span>(<span class="string">&#39;u&#39;</span>)
+        .<span class="ident">env</span>(<span class="string">&quot;USER1&quot;</span>)
+        .<span class="ident">help</span>(<span class="string">&quot;Custom user name&quot;</span>)
+        .<span class="ident">argument</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;USER&quot;</span>);
+
+    <span class="macro">construct!</span>(<span class="ident">Options</span> {
+        <span class="ident">switch</span>,
+        <span class="ident">arg</span>,
+        <span class="ident">username</span>
+    })
+    .<span class="ident">to_options</span>()
+}</code></pre></div>
+</details>
+<details>
+<summary style="display: list-item;">Derive usage</summary>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Bpaf</span>)]</span>
+<span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">options</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
+    <span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">short</span>, <span class="ident">long</span>, <span class="ident">short</span>(<span class="string">&#39;S&#39;</span>), <span class="ident">long</span>(<span class="string">&quot;also-switch&quot;</span>))]</span>
+    <span class="doccomment">/// Switch with many names</span>
+    <span class="ident">switch</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">short</span>, <span class="ident">long</span>(<span class="string">&quot;argument&quot;</span>), <span class="ident">short</span>(<span class="string">&#39;A&#39;</span>), <span class="ident">long</span>(<span class="string">&quot;also-arg&quot;</span>))]</span>
+    <span class="doccomment">/// Argument with names</span>
+    <span class="ident">arg</span>: <span class="ident">usize</span>,
+    <span class="attribute">#[<span class="ident">bpaf</span>(<span class="ident">short</span>, <span class="ident">long</span>(<span class="string">&quot;user&quot;</span>), <span class="ident">env</span>(<span class="string">&quot;USER1&quot;</span>), <span class="ident">argument</span>(<span class="string">&quot;USER&quot;</span>))]</span>
+    <span class="doccomment">/// Custom user name</span>
+    <span class="ident">username</span>: <span class="ident">String</span>,
+}</code></pre></div>
+</details>
+<details>
+<summary style="display: list-item;">Examples</summary>
+<p>As usual switch is optional, arguments are required</p>
+<div class="example-wrap"><pre class="language-console"><code>% app -a 42 -u Bobert
+Options { switch: false, arg: 42, username: &quot;Bobert&quot; }</code></pre></div>
+<p>Help displays only visible aliases (and a current value for env arguments)</p>
+<div class="example-wrap"><pre class="language-console"><code>% app --help
+Usage: [-s] -a ARG -u USER
+
+Available options:
+    -s, --switch          Switch with many names
+    -a, --argument &lt;ARG&gt;  Argument with names
+    -u, --user &lt;USER&gt;     [env:USER1 = &quot;pacak&quot;]
+                          Custom user name
+    -h, --help            Prints help information</code></pre></div>
+<p>But you can still use hidden aliases, both short and long</p>
+<div class="example-wrap"><pre class="language-console"><code>% app --also-switch --also-arg 330 --user Bobert
+Options { switch: true, arg: 330, username: &quot;Bobert&quot; }</code></pre></div>
+<p>And unless there’s <code>many</code> or similar modifiers having multiple aliases doesn’t mean
+you can specify them multiple times:</p>
+<div class="example-wrap"><pre class="language-console"><code>% app -A 42 -a 330 -u Bobert
+-a is not expected in this context</code></pre></div>
+<p>Also hidden aliases are really hidden and only meant to do backward compatibility stuff, they
+won’t show up anywhere else in completions or error messages</p>
+<div class="example-wrap"><pre class="language-console"><code>% app -a 42 -A 330 -u Bobert
+No such flag: `-A`, did you mean `-u`?</code></pre></div></details></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="bpaf" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
