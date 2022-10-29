@@ -94,7 +94,9 @@ fn perm() -> impl Parser<Option<Perm>> {
 }
 
 pub fn options() -> OptionParser<Options> {
-    let paths = positional::<PathBuf>("PATH").many();
+    let paths = positional::<PathBuf>("PATH")
+        .complete_bash("_filedir")
+        .many();
 
     construct!(Options {
         exec(),

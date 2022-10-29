@@ -1081,3 +1081,24 @@ fn avoid_inserting_metavars() {
     test_zsh_comp(&parser, &["-a", ""], &[["-a", "-a <A>", "", ""]]);
     test_zsh_comp(&parser, &[""], &[["-a", "-a <A>", "", ""]]);
 }
+
+#[track_caller]
+fn test_comp_v3<T: std::fmt::Debug>(parser: &OptionParser<T>, args: &[&str]) {
+    let res = parser
+        .run_inner(Args::from(args).set_comp(3))
+        .unwrap_err()
+        .unwrap_stdout();
+
+    todo!("{:?}", res);
+}
+
+#[test]
+fn bash_completion() {
+    let parser = short('a')
+        .argument::<String>("FILE")
+        .complete_bash("_filedir -d")
+        .to_options();
+
+    //    test_comp_v3(&parser, &[""]);
+    //    test_comp_v3(&parser, &["-a", ""]);
+}

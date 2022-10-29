@@ -139,6 +139,19 @@ impl Arg {
 }
 
 impl Complete {
+    pub(crate) fn push_bash(&mut self, script: &'static str, depth: usize, is_arg: bool) {
+        self.comps.push(Comp::Bash {
+            extra: CompExtra {
+                depth,
+                hidden_group: "",
+                visible_group: "",
+                help: None,
+            },
+            script,
+            is_arg,
+        })
+    }
+
     pub(crate) fn push_value(
         &mut self,
         body: String,
@@ -206,6 +219,11 @@ pub(crate) enum Comp {
         meta: &'static str,
         is_arg: bool,
     },
+    Bash {
+        extra: CompExtra,
+        script: &'static str,
+        is_arg: bool,
+    },
 }
 
 impl Comp {
@@ -216,6 +234,7 @@ impl Comp {
             | Comp::Value { extra, .. }
             | Comp::Positional { extra, .. }
             | Comp::Flag { extra, .. }
+            | Comp::Bash { extra, .. }
             | Comp::Argument { extra, .. } => extra.depth,
         }
     }
@@ -228,6 +247,7 @@ impl Comp {
             Comp::Command { .. }
             | Comp::Value { .. }
             | Comp::Flag { .. }
+            | Comp::Bash { .. }
             | Comp::Argument { .. } => None,
             Comp::Positional { is_arg, .. } => Some(*is_arg),
         }
@@ -239,6 +259,7 @@ impl Comp {
             | Comp::Argument { extra, .. }
             | Comp::Command { extra, .. }
             | Comp::Value { extra, .. }
+            | Comp::Bash { extra, .. }
             | Comp::Positional { extra, .. } => extra,
         };
         match style {
@@ -387,6 +408,7 @@ impl Complete {
         pos_only: bool,
     ) -> Result<String, std::fmt::Error> {
         let mut items: Vec<ShowComp> = Vec::new();
+        let mut bash = Vec::new();
         let max_depth = self.comps.iter().map(Comp::depth).max().unwrap_or(0);
         let mut has_values = false;
 
@@ -487,6 +509,10 @@ impl Complete {
                         is_value: false,
                     });
                 }
+                Comp::Bash { script, is_arg, .. } => {
+                    has_values |= is_arg;
+                    bash.push(*script);
+                }
             }
         }
 
@@ -496,6 +522,7 @@ impl Complete {
         match self.output_rev {
             1 => render_1(&items),
             2 => render_2(&items),
+            3 => render_3(&items, &bash),
             unk => panic!("Unsupported output revision {}, you need to genenerate your shell completion files for the app", unk)
         }
     }
@@ -547,6 +574,38 @@ fn render_2(items: &[ShowComp]) -> Result<String, std::fmt::Error> {
             writeln!(res, "\0{}", item.extra.hidden_group)?;
         }
     }
+    Ok(res)
+}
+
+fn render_3(items: &[ShowComp], bash: &[&str]) -> Result<String, std::fmt::Error> {
+    use std::fmt::Write;
+    let mut res = String::new();
+    if items.len() == 1 && bash.is_empty() {
+        write!(res, "{}", items[0].subst)?;
+        return Ok(res);
+    }
+
+    for i in items {
+        write!(res, "literal\t{}\tshow\t{}", i.subst, i.pretty)?;
+        if let Some(h) = &i.extra.help {
+            write!(res, "    {}", h.split('\n').next().unwrap_or(""))?;
+        }
+
+        if !i.extra.visible_group.is_empty() {
+            write!(res, "\tvis_group\t{}", i.extra.visible_group)?;
+        }
+
+        if !i.extra.visible_group.is_empty() && i.extra.hidden_group.is_empty() {
+            writeln!(res, "\thid_group\t{}", i.extra.visible_group)?;
+        } else {
+            writeln!(res, "\thid_group\t{}", i.extra.hidden_group)?;
+        }
+    }
+
+    for b in bash {
+        write!(res, "bash\t{}", b)?;
+    }
+
     Ok(res)
 }
 

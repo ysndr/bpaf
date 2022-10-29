@@ -426,7 +426,7 @@ use structs::{
 };
 
 #[cfg(feature = "autocomplete")]
-use structs::{ParseComp, ParseCompStyle};
+use structs::{ParseComp, ParseCompBash, ParseCompStyle};
 
 #[doc(inline)]
 pub use crate::args::Args;
@@ -1237,6 +1237,20 @@ pub trait Parser<T> {
     }
     // }}}
 
+    /// complete_bash // {{{
+    /// TODO
+    #[cfg(feature = "autocomplete")]
+    fn complete_bash(self, script: &'static str) -> ParseCompBash<Self>
+    where
+        Self: Sized + Parser<T>,
+    {
+        ParseCompBash {
+            inner: self,
+            script,
+        }
+    }
+    // }}}
+
     // {{{ complete_style
     /// Add extra annotations to completion information
     ///
@@ -1443,6 +1457,7 @@ pub trait Parser<T> {
 pub enum CompleteDecor {
     /// Group items according to this group
     HiddenGroup(&'static str),
+
     /// Group items according to this group but also show the group name
     VisibleGroup(&'static str),
 }

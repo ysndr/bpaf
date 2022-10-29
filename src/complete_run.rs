@@ -1,3 +1,36 @@
+//! # Autocomplete protocol
+//!
+//! ## Version 1
+//! Goals: something simple to get it working in bash and other shells
+//! without adding complexity
+//!
+//! One item per line, \t separated sections.
+//! If there's only one possible completion - only replacement itself is inserted
+//! One item per line
+//! - item to insert
+//! - item description, op
+//!
+//! ## Version 2
+//! Goals: extended version of version 1 to allow group breakdown in zsh
+//!
+//! One item per line, \0 separated sections
+//! - item to insert
+//! - item description
+//! - visible group
+//! - hidden group
+
+//! ## Version 3
+//! Goals: something to allow extending protocol to support custom command like "complete file"
+//!
+//! One item per line, \0 separated sections
+//! first field is type:
+//! - "literal"
+//!
+//! For literal values are
+//! "literal" <value-to-insert> [<key> <val>]*
+//!
+//! "bash"
+
 use std::{ffi::OsString, path::PathBuf};
 
 use crate::{construct, Args};
@@ -13,24 +46,42 @@ pub enum Style {
 fn dump_bash_completer(name: &str) {
     println!(
         "\
-#/usr/bin/env bash
 _bpaf_dynamic_completion()
 {{
+    _init_completion || return
+    local kw;
+
     COMPREPLY=()
 
-    IFS=$'\\n' BPAF_REPLY=($( \"$1\" --bpaf-complete-rev={rev} \"${{COMP_WORDS[@]:1}}\" ))
-    for line in ${{BPAF_REPLY[@]}} ; do
-        IFS=$'\\t' parts=( $line )
-        if [[ -n ${{parts[1]}} ]] ; then
-            COMPREPLY+=($( printf \"%-19s %s\" \"${{parts[0]}}\" \"${{parts[1]}}\" ))
+    IFS=$'\n' BPAF_REPLY=($( \"$1\" --bpaf-complete-rev={rev} \"${{COMP_WORDS[@]:1}}\" ))
+    for line in \"${{BPAF_REPLY[@]}}\" ; do
+        IFS=$'\t' parts=( $line )
+        declare -A table;
+        if [[ \"${{parts[0]}}\" == \"literal\" ]] ; then
+            kw=\"\"
+            for part in \"${{parts[@]}}\" ; do
+                if [ -z \"$kw\" ] ; then
+                    kw=\"$part\"
+                else
+                    table[\"$kw\"]=\"$part\"
+                    kw=\"\"
+                fi
+            done
+            if [ ${{table[\"show\"]+x}} ] ; then
+                COMPREPLY+=(\"${{table[\"show\"]}}\")
+            else
+                COMPREPLY+=(\"${{table[\"literal\"]}}\")
+            fi
+        elif [[ \"${{parts[0]}}\" == \"bash\" ]] ; then
+            ${{parts[1]}} \"${{parts[@]:2}}\"
         else
-            COMPREPLY+=(${{parts[0]}})
+            COMPREPLY+=(\"${{parts[0]}}\")
         fi
     done
 }}
 complete -F _bpaf_dynamic_completion {name}",
         name = name,
-        rev = 1,
+        rev = 3
     );
 }
 

@@ -650,6 +650,50 @@ where
         self.inner.meta()
     }
 }
+
+#[cfg(feature = "autocomplete")]
+pub struct ParseCompBash<P> {
+    pub(crate) inner: P,
+    pub(crate) script: &'static str,
+}
+
+#[cfg(feature = "autocomplete")]
+impl<P, T> Parser<T> for ParseCompBash<P>
+where
+    P: Parser<T> + Sized,
+{
+    fn eval(&self, args: &mut Args) -> Result<T, Error> {
+        // same as with ParseComp the goal is to replace metavars added by inner parser
+        // with a completion that would call a bash script.
+        // unlike ParseComp we don't care if inner parser succeeds
+
+        // stash old completions
+        let mut comp_items = Vec::new();
+        args.swap_comps(&mut comp_items);
+
+        let res = self.inner.eval(args);
+
+        // at this point comp_items contains values added by the inner parser
+        args.swap_comps(&mut comp_items);
+
+        if let Some(comp) = &mut args.comp {
+            for ci in comp_items {
+                if let Some(is_arg) = ci.meta_type() {
+                    comp.push_bash(self.script, args.depth, is_arg)
+                } else {
+                    comp.comps.push(ci);
+                }
+            }
+        }
+
+        res
+    }
+
+    fn meta(&self) -> Meta {
+        self.inner.meta()
+    }
+}
+
 #[cfg(feature = "autocomplete")]
 pub struct ParseCompStyle<P> {
     pub(crate) inner: P,
